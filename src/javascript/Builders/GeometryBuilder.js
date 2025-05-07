@@ -2,6 +2,16 @@ import * as THREE from "three";
 
 class GeometryBuilder {
   static buildGeometry(options) {
+    if (options.type == "BufferGeometry") {
+      const geometry = new THREE.BufferGeometry();
+      geometry.setIndex(options.index.array);
+      options.attributes.forEach(([key, attribute]) => {
+        geometry.setAttribute(key, new THREE.BufferAttribute(attribute.array, attribute.itemSize));
+      });
+      geometry.uuid = options.uuid;
+      return geometry;
+    }
+
     if (options.type == "BoxGeometry") {
       const geometry = new THREE.BoxGeometry(
         options.width,

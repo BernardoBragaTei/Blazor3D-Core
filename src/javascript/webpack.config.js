@@ -17,6 +17,7 @@ module.exports = (env, argv) => {
             filename: bundleFileName + ".js",
             path: path.resolve(__dirname, dirName),
         },
+        devtool: argv.mode === "production" ? "source-map" : "source-map", // Adicionado para ativar source maps
         plugins: [
             new webpack.BannerPlugin({
               banner: `Copyright © 2022 Roman Simuta aka siroman \nCopyright © 2010-2021 three.js authors https://threejs.org/`

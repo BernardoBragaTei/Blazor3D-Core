@@ -6,8 +6,12 @@
     /// reducing the cost of passing all this data to the GPU.</para>
     /// <para>Wrapper for three.js <a target="_blank" href="https://threejs.org/docs/index.html#api/en/core/BufferGeometry">BufferGeometry</a></para>
     /// </summary>
-    public abstract class BufferGeometry
+    public class BufferGeometry
     {
+        public BufferGeometry()
+        {
+            Type = "BufferGeometry";
+        }
         protected BufferGeometry(string type)
         {
             Type = type;
@@ -24,5 +28,9 @@
         public Guid Uuid { get; set; } = Guid.NewGuid();
 
         public string Type { get; } = "Geometry";
+
+        public Dictionary<string, IBufferAttribute> Attributes { get; } = new();
+
+        public IBufferAttribute? Index { get; set; } = null;
     }
 }
