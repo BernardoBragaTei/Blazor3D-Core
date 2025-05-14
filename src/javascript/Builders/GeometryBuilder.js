@@ -1,13 +1,20 @@
 import * as THREE from "three";
+import Arrays from "../Utils/Arrays";
 
 class GeometryBuilder {
   static buildGeometry(options) {
     if (options.type == "BufferGeometry") {
       const geometry = new THREE.BufferGeometry();
       geometry.setIndex(options.index.array);
-      options.attributes.forEach(([key, attribute]) => {
-        geometry.setAttribute(key, new THREE.BufferAttribute(attribute.array, attribute.itemSize));
+
+      // Iterate through the object's key-value pairs
+      Object.entries(options.attributes).forEach(([key, attribute]) => {
+        geometry.setAttribute(key, 
+          new THREE.BufferAttribute(
+            Arrays.toTypedArray(attribute.array, attribute.type), 
+            attribute.itemSize));
       });
+
       geometry.uuid = options.uuid;
       return geometry;
     }

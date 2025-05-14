@@ -1877,6 +1877,11 @@
             Raises when user selects object by mouse clicking inside viewer area.
             </summary>
         </member>
+        <member name="E:HomagGroup.Blazor3D.Viewers.Viewer.ObjectsHovered">
+            <summary>
+            Raises when user hover elements.
+            </summary>
+        </member>
         <member name="E:HomagGroup.Blazor3D.Viewers.Viewer.ObjectLoaded">
             <summary>
             Raises after complete loading of imported file content.

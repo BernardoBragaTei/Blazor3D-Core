@@ -6,6 +6,7 @@ import MaterialBuilder from "./MaterialBuilder";
 class MeshBuilder {
   static BuildMesh(options) {
     const geometry = GeometryBuilder.buildGeometry(options.geometry);
+    geometry.computeVertexNormals();
     const material = MaterialBuilder.buildMaterial(options.material);
     const mesh = new THREE.Mesh(geometry, material);
     mesh.uuid = options.uuid;

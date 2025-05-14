@@ -70,23 +70,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _Utils_Arrays__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Utils/Arrays */ "./Utils/Arrays.js");
+
 
 
 class GeometryBuilder {
   static buildGeometry(options) {
     if (options.type == "BufferGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry();
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.BufferGeometry();
       geometry.setIndex(options.index.array);
-      options.attributes.forEach(([key, attribute]) => {
-        geometry.setAttribute(key, new three__WEBPACK_IMPORTED_MODULE_0__.BufferAttribute(attribute.array, attribute.itemSize));
+
+      // Iterate through the object's key-value pairs
+      Object.entries(options.attributes).forEach(([key, attribute]) => {
+        geometry.setAttribute(key, 
+          new three__WEBPACK_IMPORTED_MODULE_1__.BufferAttribute(
+            _Utils_Arrays__WEBPACK_IMPORTED_MODULE_0__["default"].toTypedArray(attribute.array, attribute.type), 
+            attribute.itemSize));
       });
+
       geometry.uuid = options.uuid;
       return geometry;
     }
 
     if (options.type == "BoxGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.BoxGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.BoxGeometry(
         options.width,
         options.height,
         options.depth,
@@ -99,7 +107,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "CapsuleGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.CapsuleGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.CapsuleGeometry(
         options.radius,
         options.length,
         options.capSubdivisions,
@@ -110,7 +118,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "CircleGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.CircleGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.CircleGeometry(
         options.radius,
         options.segments,
         options.thetaStart,
@@ -121,7 +129,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "ConeGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.ConeGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.ConeGeometry(
         options.radius,
         options.height,
         options.radialSegments,
@@ -135,7 +143,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "CylinderGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.CylinderGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.CylinderGeometry(
         options.radiusTop,
         options.radiusBottom,
         options.height,
@@ -150,7 +158,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "DodecahedronGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.DodecahedronGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.DodecahedronGeometry(
         options.radius,
         options.detail
       );
@@ -159,7 +167,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "IcosahedronGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.IcosahedronGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.IcosahedronGeometry(
         options.radius,
         options.detail
       );
@@ -168,7 +176,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "OctahedronGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.OctahedronGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.OctahedronGeometry(
         options.radius,
         options.detail
       );
@@ -177,7 +185,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "PlaneGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.PlaneGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.PlaneGeometry(
         options.width,
         options.height,
         options.widthSegments,
@@ -188,7 +196,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "RingGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.RingGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.RingGeometry(
         options.innerRadius,
         options.outerRadius,
         options.thetaSegments,
@@ -201,7 +209,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "SphereGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.SphereGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.SphereGeometry(
         options.radius,
         options.widthSegments,
         options.heightSegments,
@@ -215,7 +223,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "TetrahedronGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.TetrahedronGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.TetrahedronGeometry(
         options.radius,
         options.detail
       );
@@ -224,7 +232,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "TorusGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.TorusGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.TorusGeometry(
         options.radius,
         options.tube,
         options.radialSegments,
@@ -236,7 +244,7 @@ class GeometryBuilder {
     }
 
     if (options.type == "TorusKnotGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.TorusKnotGeometry(
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.TorusKnotGeometry(
         options.radius,
         options.tube,
         options.tubularSegments,
@@ -249,32 +257,32 @@ class GeometryBuilder {
     }
 
     if (options.type == "ShapeGeometry") {
-      const shape = new three__WEBPACK_IMPORTED_MODULE_0__.Shape(options.shape.points);
+      const shape = new three__WEBPACK_IMPORTED_MODULE_1__.Shape(options.shape.points);
       shape.uuid = options.shape.uuid;
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.ShapeGeometry(shape);
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.ShapeGeometry(shape);
       geometry.uuid = options.uuid;
       return geometry;
     }
 
     if (options.type == "ExtrudeGeometry") {
-      const shape = new three__WEBPACK_IMPORTED_MODULE_0__.Shape(options.shape.points);
+      const shape = new three__WEBPACK_IMPORTED_MODULE_1__.Shape(options.shape.points);
       shape.uuid = options.shape.uuid;
 
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.ExtrudeGeometry(shape, options.extrudeOptions);
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.ExtrudeGeometry(shape, options.extrudeOptions);
       geometry.uuid = options.uuid;
       return geometry;
     }
 
     if (options.type == "SplineCurveGeometry") {
-      const curve = new three__WEBPACK_IMPORTED_MODULE_0__.SplineCurve(options.points);
+      const curve = new three__WEBPACK_IMPORTED_MODULE_1__.SplineCurve(options.points);
       const curvePoints = curve.getPoints(options.divisions)
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry().setFromPoints( curvePoints )
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.BufferGeometry().setFromPoints( curvePoints )
       geometry.uuid = options.uuid;
       return geometry;
     }
 
     if (options.type == "LineGeometry") {
-      const geometry = new three__WEBPACK_IMPORTED_MODULE_0__.BufferGeometry().setFromPoints( options.points )
+      const geometry = new three__WEBPACK_IMPORTED_MODULE_1__.BufferGeometry().setFromPoints( options.points )
       geometry.uuid = options.uuid;
       return geometry;
     }
@@ -309,6 +317,8 @@ class GroupBuilder {
 
     static BuildGroup(options, scene) {
         const group = new three__WEBPACK_IMPORTED_MODULE_2__.Group();
+        group.uuid = options.uuid;
+        group.userData.elemId = options.uuid;
         options.children.forEach((childOptions) => {
             // todo: changes for text here (see Viewer.SetScene)
             var child = _SceneBuilder__WEBPACK_IMPORTED_MODULE_1__["default"].BuildChild(childOptions, scene);
@@ -570,6 +580,7 @@ class MaterialBuilder {
         depthTest: options.depthTest,
         depthWrite: options.depthWrite
       });
+      material.side = three__WEBPACK_IMPORTED_MODULE_1__.DoubleSide;
       material.uuid = options.uuid;
       return material;
     }
@@ -635,6 +646,7 @@ __webpack_require__.r(__webpack_exports__);
 class MeshBuilder {
   static BuildMesh(options) {
     const geometry = _GeometryBuilder__WEBPACK_IMPORTED_MODULE_1__["default"].buildGeometry(options.geometry);
+    geometry.computeVertexNormals();
     const material = _MaterialBuilder__WEBPACK_IMPORTED_MODULE_2__["default"].buildMaterial(options.material);
     const mesh = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(geometry, material);
     mesh.uuid = options.uuid;
@@ -959,6 +971,47 @@ class TextureBuilder {
 
 /***/ }),
 
+/***/ "./Utils/Arrays.js":
+/*!*************************!*\
+  !*** ./Utils/Arrays.js ***!
+  \*************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// This file contains utility functions for working with arrays.
+
+class Arrays{
+    static toTypedArray(array, type){
+        switch(type){
+            case "Single":
+                return new Float32Array(array);
+            case "Double":
+                return new Float64Array(array);
+            case "SByte":
+                return new Int8Array(array);
+            case "Int16":
+                return new Int16Array(array);
+            case "Int32":
+                return new Int32Array(array);
+            case "Byte":
+                return new Uint8Array(array);
+            case "Uint16":
+                return new Uint16Array(array);
+            case "Uint32":
+                return new Uint32Array(array);
+            default:
+                throw new Error(`Unsupported type: ${type}`);
+        }
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Arrays);
+
+/***/ }),
+
 /***/ "./Utils/Transforms.js":
 /*!*****************************!*\
   !*** ./Utils/Transforms.js ***!
@@ -1274,7 +1327,16 @@ class Viewer3D {
     this.container = container;
     this.clock = new three__WEBPACK_IMPORTED_MODULE_8__.Clock();
 
+    // Bind the onMouseMove method to the current instance
+    this.onMouseMove = this.onMouseMove.bind(this);
+
     this.scene = new three__WEBPACK_IMPORTED_MODULE_8__.Scene();
+    this.scene.rotation.x = -Math.PI / 2; // Rotates the scene 90 degrees
+
+    const hemiLight = new three__WEBPACK_IMPORTED_MODULE_8__.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0, 20, 0);
+    this.scene.add(hemiLight);
+
     this.setScene();
 
     this.renderer = new three__WEBPACK_IMPORTED_MODULE_8__.WebGLRenderer(
@@ -1291,6 +1353,9 @@ class Viewer3D {
 
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
+
+    // Add the event listener
+    window.addEventListener('mousemove', this.onMouseMove);
 
     this.renderer.domElement.onclick = (event) => {
       if (this.options.viewerSettings.canSelect == true) {
@@ -1313,10 +1378,56 @@ class Viewer3D {
     const animate = () => {
       this.controls.update();
       requestAnimationFrame(animate);
+      // this.hoverObjectOverride();
       this.render();
     };
     
     animate();
+  }
+
+  onMouseMove(event) {
+    let canvas = this.renderer.domElement;
+    
+    this.mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
+    this.mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
+
+    this.sendHoverObjectData();
+  }
+
+  sendHoverObjectData(){
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+    const intersectData = intersects.map(intersect => ({
+      distance : intersect.distance, 
+      objectId: intersect.object.parent.userData.elemId, 
+      point: intersect.point
+    }));
+
+    const intersectArgs = { 
+      containerId: this.options.viewerSettings.containerId,
+      intersectData: intersectData
+     };
+
+     DotNet.invokeMethodAsync(
+      "Blazor3D",
+      "ReceiveHoveredObjectData",
+      intersectArgs);
+  }
+
+  hoverObjectOverride(){
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.scene.children);
+
+    if (intersects.length > 0) {
+      intersects[0].object.material.color.set(0xff0000); // hover color
+      if(intersects[0].object.children.length > 0){
+        intersects[0].object.children.forEach(child => {
+          child.material.color.set(0xff0000); // hover color
+        });
+      }
+    } else {
+      // cube.material.color.set(0x00ff00); // default color
+    }
   }
 
   render() {
@@ -1360,6 +1471,10 @@ class Viewer3D {
     if (this.options.scene.backGroundColor){
       this.scene.background = new three__WEBPACK_IMPORTED_MODULE_8__.Color(this.options.scene.backGroundColor);
     }
+
+    const hemiLight = new three__WEBPACK_IMPORTED_MODULE_8__.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0, 20, 0);
+    this.scene.add(hemiLight);
     
     this.scene.uuid = this.options.scene.uuid;
 
@@ -1400,6 +1515,18 @@ class Viewer3D {
     this.options.camera = newCamera;
     this.setCamera();
     this.setOrbitControls();
+  }
+
+  addToScene(options) {
+    if (options.type == "Text") {      
+      _Builders_TextBuilder__WEBPACK_IMPORTED_MODULE_3__["default"].BuildText(options, this.scene);
+    }
+    else {
+      var child = _Builders_SceneBuilder__WEBPACK_IMPORTED_MODULE_4__["default"].BuildChild(options, this.scene);
+      if (child) {
+        this.scene.add(child);
+      }
+    }    
   }
 
   rotateCamera() {
@@ -77810,6 +77937,7 @@ var __webpack_exports__ = {};
   \******************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "addToScene": () => (/* binding */ addToScene),
 /* harmony export */   "clearScene": () => (/* binding */ clearScene),
 /* harmony export */   "getSceneItemByGuid": () => (/* binding */ getSceneItemByGuid),
 /* harmony export */   "import3DModel": () => (/* binding */ import3DModel),
@@ -77846,6 +77974,11 @@ function loadViewer(json) {
 function updateScene(json) {
   const sceneOptions = JSON.parse(json);
   viewer3d.updateScene(sceneOptions);
+}
+
+function addToScene(json) {
+  const sceneOptions = JSON.parse(json);
+  viewer3d.addToScene(sceneOptions);
 }
 
 function removeByUuid(guid) {
@@ -77895,6 +78028,7 @@ function getSceneItemByGuid(guid) {
 
 })();
 
+var __webpack_exports__addToScene = __webpack_exports__.addToScene;
 var __webpack_exports__clearScene = __webpack_exports__.clearScene;
 var __webpack_exports__getSceneItemByGuid = __webpack_exports__.getSceneItemByGuid;
 var __webpack_exports__import3DModel = __webpack_exports__.import3DModel;
@@ -77907,6 +78041,6 @@ var __webpack_exports__showCurrentCameraInfo = __webpack_exports__.showCurrentCa
 var __webpack_exports__updateCamera = __webpack_exports__.updateCamera;
 var __webpack_exports__updateOrbitControls = __webpack_exports__.updateOrbitControls;
 var __webpack_exports__updateScene = __webpack_exports__.updateScene;
-export { __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene };
+export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene };
 
 //# sourceMappingURL=bundle.js.map

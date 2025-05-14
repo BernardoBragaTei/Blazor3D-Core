@@ -29,13 +29,22 @@ namespace HomagGroup.Blazor3D.Viewers
         private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
         private static event LoadedObjectStaticEventHandler ObjectLoadedStatic = null!;
 
+        private delegate void HoveredObjectStaticEventHandler(RayIntersectArgs e);
+        private static event HoveredObjectStaticEventHandler ObjectHoveredStatic = null!;
+
         private event LoadedObjectEventHandler ObjectLoadedPrivate = null!;
 
+        public delegate void HoveredObjectsEventHandler(RayIntersectArgs intersectArgs);
         
         /// <summary>
         /// Raises when user selects object by mouse clicking inside viewer area.
         /// </summary>
         public event SelectedObjectEventHandler ObjectSelected = null!;
+
+        /// <summary>
+        /// Raises when user hover elements.
+        /// </summary>
+        public event HoveredObjectsEventHandler ObjectsHovered = null!;
 
         /// <summary>
         /// Raises after complete loading of imported file content.
@@ -86,6 +95,7 @@ namespace HomagGroup.Blazor3D.Viewers
                 ObjectSelectedStatic += OnObjectSelectedStatic;
                 ObjectLoadedStatic += OnObjectLoadedStatic;
                 ObjectLoadedPrivate += OnObjectLoadedPrivate;
+                ObjectHoveredStatic += OnObjectHoveredStatic;
 
                 bundleModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
                     "import",
@@ -111,6 +121,8 @@ namespace HomagGroup.Blazor3D.Viewers
             }
         }
 
+
+
         /// <summary>
         /// Updates scene changes.
         /// </summary>
@@ -119,6 +131,12 @@ namespace HomagGroup.Blazor3D.Viewers
         {
             var json = JsonConvert.SerializeObject(Scene, SerializationHelper.GetSerializerSettings());
             await bundleModule.InvokeVoidAsync("updateScene", json);
+        }
+
+        public async Task AddToSceneAsync(Object3D obj3d)
+        {
+            var json = JsonConvert.SerializeObject(obj3d, SerializationHelper.GetSerializerSettings());
+            await bundleModule.InvokeVoidAsync("addToScene", json);
         }
 
         /// <summary>
@@ -164,6 +182,17 @@ namespace HomagGroup.Blazor3D.Viewers
             OrbitControls = orbitControls;
             var json = JsonConvert.SerializeObject(OrbitControls, SerializationHelper.GetSerializerSettings());
             await bundleModule.InvokeVoidAsync("updateOrbitControls", json);
+        }
+
+        [JSInvokable]
+        public static Task ReceiveHoveredObjectData(RayIntersectArgs intersectArgs)
+        {
+            if(intersectArgs.IntersectData == null || intersectArgs.IntersectData.Length == 0)
+            {
+                return Task.CompletedTask;
+            }
+            ObjectHoveredStatic?.Invoke(intersectArgs);
+            return Task.CompletedTask;
         }
 
         [JSInvokable]
@@ -308,6 +337,14 @@ namespace HomagGroup.Blazor3D.Viewers
             }
         }
 
+        private void OnObjectHoveredStatic(RayIntersectArgs e)
+        {
+            if (ViewerSettings.ContainerId == e.ContainerId)
+            {
+                ObjectsHovered?.Invoke(e);
+            }
+        }
+
         private void OnObjectLoadedStatic(Object3DStaticArgs e)
         {
             if (ViewerSettings.ContainerId == e.ContainerId)
@@ -408,6 +445,7 @@ namespace HomagGroup.Blazor3D.Viewers
             ObjectSelectedStatic -= OnObjectSelectedStatic;
             ObjectLoadedStatic -= OnObjectLoadedStatic;
             ObjectLoadedPrivate -= OnObjectLoadedPrivate;
+            ObjectHoveredStatic -= OnObjectHoveredStatic;
         }
     }
 }

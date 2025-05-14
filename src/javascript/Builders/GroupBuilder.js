@@ -6,6 +6,8 @@ class GroupBuilder {
 
     static BuildGroup(options, scene) {
         const group = new THREE.Group();
+        group.uuid = options.uuid;
+        group.userData.elemId = options.uuid;
         options.children.forEach((childOptions) => {
             // todo: changes for text here (see Viewer.SetScene)
             var child = SceneBuilder.BuildChild(childOptions, scene);

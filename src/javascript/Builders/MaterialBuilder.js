@@ -19,6 +19,7 @@ class MaterialBuilder {
         depthTest: options.depthTest,
         depthWrite: options.depthWrite
       });
+      material.side = THREE.DoubleSide;
       material.uuid = options.uuid;
       return material;
     }

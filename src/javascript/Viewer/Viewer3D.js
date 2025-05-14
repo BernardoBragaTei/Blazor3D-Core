@@ -23,7 +23,16 @@ class Viewer3D {
     this.container = container;
     this.clock = new THREE.Clock();
 
+    // Bind the onMouseMove method to the current instance
+    this.onMouseMove = this.onMouseMove.bind(this);
+
     this.scene = new THREE.Scene();
+    this.scene.rotation.x = -Math.PI / 2; // Rotates the scene 90 degrees
+
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0, 20, 0);
+    this.scene.add(hemiLight);
+
     this.setScene();
 
     this.renderer = new THREE.WebGLRenderer(
@@ -40,6 +49,9 @@ class Viewer3D {
 
     this.renderer.domElement.style.width = "100%";
     this.renderer.domElement.style.height = "100%";
+
+    // Add the event listener
+    window.addEventListener('mousemove', this.onMouseMove);
 
     this.renderer.domElement.onclick = (event) => {
       if (this.options.viewerSettings.canSelect == true) {
@@ -62,10 +74,56 @@ class Viewer3D {
     const animate = () => {
       this.controls.update();
       requestAnimationFrame(animate);
+      // this.hoverObjectOverride();
       this.render();
     };
     
     animate();
+  }
+
+  onMouseMove(event) {
+    let canvas = this.renderer.domElement;
+    
+    this.mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
+    this.mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
+
+    this.sendHoverObjectData();
+  }
+
+  sendHoverObjectData(){
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+    const intersectData = intersects.map(intersect => ({
+      distance : intersect.distance, 
+      objectId: intersect.object.parent.userData.elemId, 
+      point: intersect.point
+    }));
+
+    const intersectArgs = { 
+      containerId: this.options.viewerSettings.containerId,
+      intersectData: intersectData
+     };
+
+     DotNet.invokeMethodAsync(
+      "Blazor3D",
+      "ReceiveHoveredObjectData",
+      intersectArgs);
+  }
+
+  hoverObjectOverride(){
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.scene.children);
+
+    if (intersects.length > 0) {
+      intersects[0].object.material.color.set(0xff0000); // hover color
+      if(intersects[0].object.children.length > 0){
+        intersects[0].object.children.forEach(child => {
+          child.material.color.set(0xff0000); // hover color
+        });
+      }
+    } else {
+      // cube.material.color.set(0x00ff00); // default color
+    }
   }
 
   render() {
@@ -109,6 +167,10 @@ class Viewer3D {
     if (this.options.scene.backGroundColor){
       this.scene.background = new THREE.Color(this.options.scene.backGroundColor);
     }
+
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0, 20, 0);
+    this.scene.add(hemiLight);
     
     this.scene.uuid = this.options.scene.uuid;
 
@@ -149,6 +211,18 @@ class Viewer3D {
     this.options.camera = newCamera;
     this.setCamera();
     this.setOrbitControls();
+  }
+
+  addToScene(options) {
+    if (options.type == "Text") {      
+      TextBuilder.BuildText(options, this.scene);
+    }
+    else {
+      var child = SceneBuilder.BuildChild(options, this.scene);
+      if (child) {
+        this.scene.add(child);
+      }
+    }    
   }
 
   rotateCamera() {

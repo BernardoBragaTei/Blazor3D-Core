@@ -22,6 +22,11 @@ export function updateScene(json) {
   viewer3d.updateScene(sceneOptions);
 }
 
+export function addToScene(json) {
+  const sceneOptions = JSON.parse(json);
+  viewer3d.addToScene(sceneOptions);
+}
+
 export function removeByUuid(guid) {
   return viewer3d.removeByUuid(guid);
 }
