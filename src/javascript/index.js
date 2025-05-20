@@ -1,3 +1,5 @@
+import { Vector3 } from "three";
+import * as THREE from "three";
 import Viewer3D from "./Viewer/Viewer3D";
 
 let viewer3d;
@@ -70,4 +72,24 @@ export function updateOrbitControls(json){
 export function getSceneItemByGuid(guid) {
   const item = viewer3d.getSceneItemByGuid(guid);
   return JSON.stringify(item);
+}
+
+export function getScreenCoordinates(modelCoordinates){
+  const vector = new THREE.Vector3(
+    modelCoordinates.x, modelCoordinates.y, modelCoordinates.z);
+  vector.project(viewer3d.camera);
+  const canvas = viewer3d.renderer.domElement;
+
+      // If outside -1 to 1 range, it's off-screen
+    if (vector.x < -1 || vector.x > 1 || vector.y < -1 || vector.y > 1 || vector.z < 0) {
+        return null; // Point is not visible
+    }
+
+    const widthHalf = canvas.clientWidth / 2;
+    const heightHalf = canvas.clientHeight / 2;
+
+    return new THREE.Vector2(
+        (vector.x * widthHalf) + widthHalf,
+        (-vector.y * heightHalf) + heightHalf
+    );
 }

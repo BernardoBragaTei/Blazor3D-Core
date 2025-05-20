@@ -690,6 +690,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _GroupBuilder__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./GroupBuilder */ "./Builders/GroupBuilder.js");
 /* harmony import */ var _LineBuilder__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./LineBuilder */ "./Builders/LineBuilder.js");
 /* harmony import */ var _SpriteBuilder__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SpriteBuilder */ "./Builders/SpriteBuilder.js");
+/* harmony import */ var _TextBuilder__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./TextBuilder */ "./Builders/TextBuilder.js");
+
 
 
 
@@ -700,6 +702,9 @@ __webpack_require__.r(__webpack_exports__);
 class SceneBuilder {
 
   static BuildChild(options, scene) {
+    if (options.type == "Text") {      
+      return _TextBuilder__WEBPACK_IMPORTED_MODULE_6__["default"].BuildText(options);
+    }
     if (options.type == "Mesh") {
       return _MeshBuilder__WEBPACK_IMPORTED_MODULE_2__["default"].BuildMesh(options);
     }
@@ -851,6 +856,7 @@ class TextBuilder {
       }
     );
   }
+
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TextBuilder);
@@ -1329,6 +1335,7 @@ class Viewer3D {
 
     // Bind the onMouseMove method to the current instance
     this.onMouseMove = this.onMouseMove.bind(this);
+    this.onOrbitChange = this.onOrbitChange.bind(this);
 
     this.scene = new three__WEBPACK_IMPORTED_MODULE_8__.Scene();
     this.scene.rotation.x = -Math.PI / 2; // Rotates the scene 90 degrees
@@ -1607,6 +1614,15 @@ class Viewer3D {
     let { x, y, z } = this.options.camera.lookAt;
     this.controls.target.set(x, y, z);
     this.controls.update();
+    this.controls.addEventListener("change", this.onOrbitChange);
+  }
+
+  onOrbitChange() {
+    DotNet.invokeMethodAsync(
+      "Blazor3D",
+      "InvokeOrbitChange",
+      this.options.viewerSettings.containerId
+    );
   }
 
   updateOrbitControls(newOrbitControls) {
@@ -1694,14 +1710,23 @@ class Viewer3D {
     }
 
     if (this.INTERSECTED) {
+      const id = this.INTERSECTED.parent.uuid;
 
       DotNet.invokeMethodAsync(
         "Blazor3D",
         "ReceiveSelectedObjectUUID",
         this.options.viewerSettings.containerId,
-        this.INTERSECTED.uuid
+        id
       );
     }
+  }
+
+  getTopParentUuid(object){
+    let parentObj = object;
+    while (parentObj.parent != null && parentObj.parent.type != "Scene") {
+      parentObj = parentObj.parent;
+    }
+    return parentObj.uuid;
   }
 
   setCameraPosition(position, lookAt) {
@@ -77940,6 +77965,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "addToScene": () => (/* binding */ addToScene),
 /* harmony export */   "clearScene": () => (/* binding */ clearScene),
 /* harmony export */   "getSceneItemByGuid": () => (/* binding */ getSceneItemByGuid),
+/* harmony export */   "getScreenCoordinates": () => (/* binding */ getScreenCoordinates),
 /* harmony export */   "import3DModel": () => (/* binding */ import3DModel),
 /* harmony export */   "importSprite": () => (/* binding */ importSprite),
 /* harmony export */   "loadViewer": () => (/* binding */ loadViewer),
@@ -77951,7 +77977,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "updateOrbitControls": () => (/* binding */ updateOrbitControls),
 /* harmony export */   "updateScene": () => (/* binding */ updateScene)
 /* harmony export */ });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var _Viewer_Viewer3D__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Viewer/Viewer3D */ "./Viewer/Viewer3D.js");
+
+
 
 
 let viewer3d;
@@ -78026,11 +78055,32 @@ function getSceneItemByGuid(guid) {
   return JSON.stringify(item);
 }
 
+function getScreenCoordinates(modelCoordinates){
+  const vector = new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(
+    modelCoordinates.x, modelCoordinates.y, modelCoordinates.z);
+  vector.project(viewer3d.camera);
+  const canvas = viewer3d.renderer.domElement;
+
+      // If outside -1 to 1 range, it's off-screen
+    if (vector.x < -1 || vector.x > 1 || vector.y < -1 || vector.y > 1 || vector.z < 0) {
+        return null; // Point is not visible
+    }
+
+    const widthHalf = canvas.clientWidth / 2;
+    const heightHalf = canvas.clientHeight / 2;
+
+    return new three__WEBPACK_IMPORTED_MODULE_1__.Vector2(
+        (vector.x * widthHalf) + widthHalf,
+        (-vector.y * heightHalf) + heightHalf
+    );
+}
+
 })();
 
 var __webpack_exports__addToScene = __webpack_exports__.addToScene;
 var __webpack_exports__clearScene = __webpack_exports__.clearScene;
 var __webpack_exports__getSceneItemByGuid = __webpack_exports__.getSceneItemByGuid;
+var __webpack_exports__getScreenCoordinates = __webpack_exports__.getScreenCoordinates;
 var __webpack_exports__import3DModel = __webpack_exports__.import3DModel;
 var __webpack_exports__importSprite = __webpack_exports__.importSprite;
 var __webpack_exports__loadViewer = __webpack_exports__.loadViewer;
@@ -78041,6 +78091,6 @@ var __webpack_exports__showCurrentCameraInfo = __webpack_exports__.showCurrentCa
 var __webpack_exports__updateCamera = __webpack_exports__.updateCamera;
 var __webpack_exports__updateOrbitControls = __webpack_exports__.updateOrbitControls;
 var __webpack_exports__updateScene = __webpack_exports__.updateScene;
-export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene };
+export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__getScreenCoordinates as getScreenCoordinates, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene };
 
 //# sourceMappingURL=bundle.js.map

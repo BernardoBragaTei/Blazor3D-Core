@@ -58,6 +58,7 @@ class TextBuilder {
       }
     );
   }
+
 }
 
 export default TextBuilder;

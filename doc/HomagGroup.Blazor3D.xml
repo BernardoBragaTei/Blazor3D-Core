@@ -1872,6 +1872,11 @@
             <para>HomagGroup.Blazor3D viewer component.</para>
             </summary>
         </member>
+        <member name="E:HomagGroup.Blazor3D.Viewers.Viewer.OrbitChanged">
+            <summary>
+            Raises when the orbit corntrols raises the change event.
+            </summary>
+        </member>
         <member name="E:HomagGroup.Blazor3D.Viewers.Viewer.ObjectSelected">
             <summary>
             Raises when user selects object by mouse clicking inside viewer area.
@@ -1969,6 +1974,11 @@
             Clears scene.
             </summary>
             <returns>Task</returns>
+        </member>
+        <member name="M:HomagGroup.Blazor3D.Viewers.Viewer.GetScreenCoordinates(HomagGroup.Blazor3D.Maths.Vector3)">
+            <summary>
+            Gets the screen coordinates of the point if that one is visible by the camera.
+            </summary>
         </member>
         <member name="M:HomagGroup.Blazor3D.Viewers.Viewer.Import3DModelAsync(HomagGroup.Blazor3D.Settings.ImportSettings)">
             <summary>

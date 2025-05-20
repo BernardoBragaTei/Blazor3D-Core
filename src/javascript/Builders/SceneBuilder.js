@@ -4,10 +4,14 @@ import MeshBuilder from "./MeshBuilder";
 import GroupBuilder from "./GroupBuilder";
 import LineBuilder from "./LineBuilder";
 import SpriteBuilder from "./SpriteBuilder";
+import TextBuilder from "./TextBuilder";
 
 class SceneBuilder {
 
   static BuildChild(options, scene) {
+    if (options.type == "Text") {      
+      return TextBuilder.BuildText(options);
+    }
     if (options.type == "Mesh") {
       return MeshBuilder.BuildMesh(options);
     }

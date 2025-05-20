@@ -7,6 +7,11 @@
         public Guid UUID { get; set; }
     }
 
+    public class ContainerStaticArgs
+    {
+        public string ContainerId { get; set; } = null!;
+    }
+
     /// <summary>
     /// <para>Arguments for <see cref="Viewers.Viewer"/> ObjectSelected and ObjectLoaded event handlers.</para>
     /// </summary>

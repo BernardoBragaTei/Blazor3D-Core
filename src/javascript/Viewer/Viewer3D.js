@@ -25,6 +25,7 @@ class Viewer3D {
 
     // Bind the onMouseMove method to the current instance
     this.onMouseMove = this.onMouseMove.bind(this);
+    this.onOrbitChange = this.onOrbitChange.bind(this);
 
     this.scene = new THREE.Scene();
     this.scene.rotation.x = -Math.PI / 2; // Rotates the scene 90 degrees
@@ -303,6 +304,15 @@ class Viewer3D {
     let { x, y, z } = this.options.camera.lookAt;
     this.controls.target.set(x, y, z);
     this.controls.update();
+    this.controls.addEventListener("change", this.onOrbitChange);
+  }
+
+  onOrbitChange() {
+    DotNet.invokeMethodAsync(
+      "Blazor3D",
+      "InvokeOrbitChange",
+      this.options.viewerSettings.containerId
+    );
   }
 
   updateOrbitControls(newOrbitControls) {
@@ -390,14 +400,23 @@ class Viewer3D {
     }
 
     if (this.INTERSECTED) {
+      const id = this.INTERSECTED.parent.uuid;
 
       DotNet.invokeMethodAsync(
         "Blazor3D",
         "ReceiveSelectedObjectUUID",
         this.options.viewerSettings.containerId,
-        this.INTERSECTED.uuid
+        id
       );
     }
+  }
+
+  getTopParentUuid(object){
+    let parentObj = object;
+    while (parentObj.parent != null && parentObj.parent.type != "Scene") {
+      parentObj = parentObj.parent;
+    }
+    return parentObj.uuid;
   }
 
   setCameraPosition(position, lookAt) {

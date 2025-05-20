@@ -34,8 +34,16 @@ namespace HomagGroup.Blazor3D.Viewers
 
         private event LoadedObjectEventHandler ObjectLoadedPrivate = null!;
 
+        public delegate void OrbitChangeStaticEventHandler(ContainerStaticArgs e);
+        public static event OrbitChangeStaticEventHandler OrbitChangedStatic = null!;
+
         public delegate void HoveredObjectsEventHandler(RayIntersectArgs intersectArgs);
-        
+
+        /// <summary>
+        /// Raises when the orbit corntrols raises the change event.
+        /// </summary>
+        public event EventHandler OrbitChanged = null!;
+
         /// <summary>
         /// Raises when user selects object by mouse clicking inside viewer area.
         /// </summary>
@@ -96,6 +104,7 @@ namespace HomagGroup.Blazor3D.Viewers
                 ObjectLoadedStatic += OnObjectLoadedStatic;
                 ObjectLoadedPrivate += OnObjectLoadedPrivate;
                 ObjectHoveredStatic += OnObjectHoveredStatic;
+                OrbitChangedStatic += OnOrbitChangedStatic;
 
                 bundleModule = await JSRuntime.InvokeAsync<IJSObjectReference>(
                     "import",
@@ -118,6 +127,14 @@ namespace HomagGroup.Blazor3D.Viewers
 
                 await bundleModule.InvokeVoidAsync("loadViewer", json);
                 await OnModuleLoaded();
+            }
+        }
+
+        private void OnOrbitChangedStatic(ContainerStaticArgs e)
+        {
+            if (ViewerSettings.ContainerId == e.ContainerId)
+            {
+                OrbitChanged?.Invoke(null, new EventArgs());
             }
         }
 
@@ -220,6 +237,16 @@ namespace HomagGroup.Blazor3D.Viewers
             return Task.CompletedTask;
         }
 
+        [JSInvokable]
+        public static Task InvokeOrbitChange(string containerId)
+        {
+            OrbitChangedStatic?.Invoke(new ContainerStaticArgs()
+            {
+                ContainerId = containerId,
+            });
+            return Task.CompletedTask;
+        }
+
         /// <summary>
         /// Removes object from scene by it's unique identifier.
         /// </summary>
@@ -252,6 +279,15 @@ namespace HomagGroup.Blazor3D.Viewers
         {
             await bundleModule.InvokeVoidAsync("clearScene");
             Scene.Children.Clear();
+        }
+
+        /// <summary>
+        /// Gets the screen coordinates of the point if that one is visible by the camera.
+        /// </summary>
+        public async Task<Vector2?> GetScreenCoordinates(Vector3 modelCoordinates)
+        {
+            var correctedCoords = new Vector3(modelCoordinates.X, modelCoordinates.Z, -modelCoordinates.Y);
+            return await bundleModule.InvokeAsync<Vector2?>("getScreenCoordinates", correctedCoords);
         }
 
         /// <summary>
@@ -446,6 +482,7 @@ namespace HomagGroup.Blazor3D.Viewers
             ObjectLoadedStatic -= OnObjectLoadedStatic;
             ObjectLoadedPrivate -= OnObjectLoadedPrivate;
             ObjectHoveredStatic -= OnObjectHoveredStatic;
+            OrbitChangedStatic -= OnOrbitChangedStatic;
         }
     }
 }
