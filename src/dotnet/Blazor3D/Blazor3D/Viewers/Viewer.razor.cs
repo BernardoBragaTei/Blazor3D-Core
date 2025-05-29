@@ -272,6 +272,17 @@ namespace HomagGroup.Blazor3D.Viewers
         }
 
         /// <summary>
+        /// <para>Toggles the object visibility on the scene</para>
+        /// </summary>
+        /// <param name="uuid">Unique identifier of object to select</param>
+        /// <param name="visibility">Whether the object mus become visible or not</param>
+        /// <returns>Task</returns>
+        public async Task ToggleVisibilityByUuidAsync(Guid uuid, bool visibility)
+        {
+            await bundleModule.InvokeVoidAsync("toggleVisibilityByUuid", uuid, visibility);
+        }
+
+        /// <summary>
         /// Clears scene.
         /// </summary>
         /// <returns>Task</returns>

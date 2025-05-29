@@ -455,6 +455,15 @@ class Viewer3D {
     return false;
   }
 
+  toggleVisibilityByUuid(uuid, visible) {
+    let obj = this.scene.getObjectByProperty("uuid", uuid);
+    if (obj) {
+      obj.visible = visible;
+      return true;
+    }
+    return false;
+  }
+
   clearScene() {
     this.scene.clear();
   }

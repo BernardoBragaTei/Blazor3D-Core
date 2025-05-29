@@ -74,6 +74,10 @@ export function getSceneItemByGuid(guid) {
   return JSON.stringify(item);
 }
 
+export function toggleVisibilityByUuid(guid, visible) {
+  return viewer3d.toggleVisibilityByUuid(guid, visible);
+}
+
 export function getScreenCoordinates(modelCoordinates){
   const vector = new THREE.Vector3(
     modelCoordinates.x, modelCoordinates.y, modelCoordinates.z);

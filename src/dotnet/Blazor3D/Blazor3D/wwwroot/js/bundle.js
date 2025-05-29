@@ -1765,6 +1765,15 @@ class Viewer3D {
     return false;
   }
 
+  toggleVisibilityByUuid(uuid, visible) {
+    let obj = this.scene.getObjectByProperty("uuid", uuid);
+    if (obj) {
+      obj.visible = visible;
+      return true;
+    }
+    return false;
+  }
+
   clearScene() {
     this.scene.clear();
   }
@@ -77973,6 +77982,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "selectByUuid": () => (/* binding */ selectByUuid),
 /* harmony export */   "setCameraPosition": () => (/* binding */ setCameraPosition),
 /* harmony export */   "showCurrentCameraInfo": () => (/* binding */ showCurrentCameraInfo),
+/* harmony export */   "toggleVisibilityByUuid": () => (/* binding */ toggleVisibilityByUuid),
 /* harmony export */   "updateCamera": () => (/* binding */ updateCamera),
 /* harmony export */   "updateOrbitControls": () => (/* binding */ updateOrbitControls),
 /* harmony export */   "updateScene": () => (/* binding */ updateScene)
@@ -78055,6 +78065,10 @@ function getSceneItemByGuid(guid) {
   return JSON.stringify(item);
 }
 
+function toggleVisibilityByUuid(guid, visible) {
+  return viewer3d.toggleVisibilityByUuid(guid, visible);
+}
+
 function getScreenCoordinates(modelCoordinates){
   const vector = new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(
     modelCoordinates.x, modelCoordinates.y, modelCoordinates.z);
@@ -78088,9 +78102,10 @@ var __webpack_exports__removeByUuid = __webpack_exports__.removeByUuid;
 var __webpack_exports__selectByUuid = __webpack_exports__.selectByUuid;
 var __webpack_exports__setCameraPosition = __webpack_exports__.setCameraPosition;
 var __webpack_exports__showCurrentCameraInfo = __webpack_exports__.showCurrentCameraInfo;
+var __webpack_exports__toggleVisibilityByUuid = __webpack_exports__.toggleVisibilityByUuid;
 var __webpack_exports__updateCamera = __webpack_exports__.updateCamera;
 var __webpack_exports__updateOrbitControls = __webpack_exports__.updateOrbitControls;
 var __webpack_exports__updateScene = __webpack_exports__.updateScene;
-export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__getScreenCoordinates as getScreenCoordinates, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene };
+export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__getScreenCoordinates as getScreenCoordinates, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__toggleVisibilityByUuid as toggleVisibilityByUuid, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene };
 
 //# sourceMappingURL=bundle.js.map

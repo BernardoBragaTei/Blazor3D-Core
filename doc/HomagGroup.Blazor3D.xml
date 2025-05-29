@@ -1969,6 +1969,14 @@
             <param name="uuid">Unique identifier of object to select</param>
             <returns>Task</returns>
         </member>
+        <member name="M:HomagGroup.Blazor3D.Viewers.Viewer.ToggleVisibilityByUuidAsync(System.Guid,System.Boolean)">
+            <summary>
+            <para>Toggles the object visibility on the scene</para>
+            </summary>
+            <param name="uuid">Unique identifier of object to select</param>
+            <param name="visibility">Whether the object mus become visible or not</param>
+            <returns>Task</returns>
+        </member>
         <member name="M:HomagGroup.Blazor3D.Viewers.Viewer.ClearSceneAsync">
             <summary>
             Clears scene.
