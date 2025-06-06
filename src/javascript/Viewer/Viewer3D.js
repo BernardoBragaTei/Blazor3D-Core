@@ -369,9 +369,12 @@ class Viewer3D {
     this.mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
     this.mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
 
+    const candidates = this.scene.children.filter(
+      (child) => child.visible);
+
     this.raycaster.setFromCamera(this.mouse, this.camera);
     const intersects = this.raycaster.intersectObjects(
-      this.scene.children,
+      candidates,
       true
     );
 
