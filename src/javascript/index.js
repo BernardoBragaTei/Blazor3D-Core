@@ -3,6 +3,7 @@ import * as THREE from "three";
 import Viewer3D from "./Viewer/Viewer3D";
 
 let viewer3d;
+let viewers = [];
 
 const resizeObserver = new ResizeObserver((entries) => {
   viewer3d.onResize();
@@ -17,47 +18,72 @@ export function loadViewer(json) {
   }
   resizeObserver.observe(container);
   viewer3d = new Viewer3D(options, container);
+  viewers.push(viewer3d);
 }
 
-export function updateScene(json) {
+function getViewerById(viewerId) {
+    if (!viewerId) {
+    console.warn("Provided viewerId is null or undefined.");
+    return null;
+  }
+  const viewer = viewers.find(v => 
+    v.options.viewerSettings.containerId === viewerId);
+  if (!viewer) {
+    console.warn(`Viewer with id ${viewerId} not found.`);
+    return null;
+  }
+  return viewer;
+}
+
+
+export function updateScene(json, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const sceneOptions = JSON.parse(json);
-  viewer3d.updateScene(sceneOptions);
+  viewer.updateScene(sceneOptions);
 }
 
-export function addToScene(json) {
+export function addToScene(json, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const sceneOptions = JSON.parse(json);
-  viewer3d.addToScene(sceneOptions);
+  viewer.addToScene(sceneOptions);
 }
 
-export function removeByUuid(guid) {
-  return viewer3d.removeByUuid(guid);
+export function removeByUuid(guid, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  return viewer.removeByUuid(guid);
 }
 
-export function selectByUuid(guid) {
-  return viewer3d.selectByUuid(guid);
+export function selectByUuid(guid, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  return viewer.selectByUuid(guid);
 }
 
-export function clearScene() {
-  viewer3d.clearScene();
+export function clearScene(viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  viewer.clearScene();
 }
 
-export function import3DModel(json) {
+export function import3DModel(json, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const settings = JSON.parse(json);
-  return JSON.stringify(viewer3d.import3DModel(settings));
+  return JSON.stringify(viewer.import3DModel(settings));
 }
 
-export function importSprite(json) {
+export function importSprite(json, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const settings = JSON.parse(json);
-  return JSON.stringify(viewer3d.importSprite(settings));
+  return JSON.stringify(viewer.importSprite(settings));
 }
 
-export function setCameraPosition(position, lookAt) {
-  viewer3d.setCameraPosition(position, lookAt);
+export function setCameraPosition(position, lookAt, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  viewer.setCameraPosition(position, lookAt);
 }
 
-export function updateCamera(json) {
+export function updateCamera(json , viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const options = JSON.parse(json);
-  viewer3d.updateCamera(options);
+  viewer.updateCamera(options);
 }
 
 export function showCurrentCameraInfo() {
@@ -69,20 +95,28 @@ export function updateOrbitControls(json){
   viewer3d.updateOrbitControls(options);
 }
 
-export function getSceneItemByGuid(guid) {
-  const item = viewer3d.getSceneItemByGuid(guid);
+export function getSceneItemByGuid(guid, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  const item = viewer.getSceneItemByGuid(guid);
   return JSON.stringify(item);
 }
 
-export function toggleVisibilityByUuid(guid, visible) {
-  return viewer3d.toggleVisibilityByUuid(guid, visible);
+export function toggleVisibilityByUuid(guid, visible, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  return viewer.toggleVisibilityByUuid(guid, visible);
 }
 
-export function getScreenCoordinates(modelCoordinates){
+export function zoomToFit(padding = 1.2, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  return viewer.zoomToFit(padding);
+}
+
+export function getScreenCoordinates(modelCoordinates, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const vector = new THREE.Vector3(
     modelCoordinates.x, modelCoordinates.y, modelCoordinates.z);
-  vector.project(viewer3d.camera);
-  const canvas = viewer3d.renderer.domElement;
+  vector.project(viewer.camera);
+  const canvas = viewer.renderer.domElement;
 
       // If outside -1 to 1 range, it's off-screen
     if (vector.x < -1 || vector.x > 1 || vector.y < -1 || vector.y > 1 || vector.z < 0) {

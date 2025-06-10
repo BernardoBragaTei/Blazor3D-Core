@@ -483,6 +483,73 @@ class Viewer3D {
       );
     }
   }
+
+  zoomToFit(padding = 1.2) {
+    const scene = this.scene;
+    const camera = this.camera;
+    const controls = this.controls;
+
+    // Compute the bounding box of the scene
+    const box = new THREE.Box3().setFromObject(scene);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+  
+    if(camera.isPerspectiveCamera) {
+      // Get the camera's current viewing direction
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+
+      // Calculate the maximum dimension of the bounding box
+      const maxDim = Math.max(size.x, size.y, size.z);
+
+      // Convert vertical FOV from degrees to radians
+      const fov = camera.fov * (Math.PI / 180);
+
+      // Compute the distance required to fit the bounding box
+      let distance = (maxDim / 2) / Math.tan(fov / 2);
+      distance *= padding; // Apply padding factor
+
+      // Calculate the new camera position
+      const newPosition = center.clone().sub(direction.clone().multiplyScalar(distance));
+      camera.position.copy(newPosition);
+      
+      // Ensure the camera is looking at the center of the bounding box
+      camera.lookAt(center);
+    }
+    else if (camera.isOrthographicCamera) {
+      const aspect = camera.right / camera.top;
+
+      const width = size.x * padding;
+      const height = size.y * padding;
+
+      if (aspect >= 1) {
+        camera.left = -width / 2;
+        camera.right = width / 2;
+        camera.top = (width / aspect) / 2;
+        camera.bottom = -(width / aspect) / 2;
+      } else {
+        camera.left = -(height * aspect) / 2;
+        camera.right = (height * aspect) / 2;
+        camera.top = height / 2;
+        camera.bottom = -height / 2;
+      }
+
+      camera.position.set(center.x, camera.position.y, center.z); // keep Y (top-down)
+      camera.lookAt(center);
+      camera.updateProjectionMatrix();
+    }
+
+    // Update controls if provided
+    if (controls) {
+      controls.target.copy(center);
+      controls.update();
+    }
+
+
+  }
+
+  
+
 }
 
 export default Viewer3D;

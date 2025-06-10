@@ -1955,6 +1955,13 @@
             <param name="orbitControls">new orbit controls</param>
             <returns>Task</returns>
         </member>
+        <member name="M:HomagGroup.Blazor3D.Viewers.Viewer.ZoomToFit(System.Double)">
+            <summary>
+            Sets the zoom to fit the scene.
+            </summary>
+            <param name="padding">Padding to be applied (1 = no padding)</param>
+            <returns>Task</returns>
+        </member>
         <member name="M:HomagGroup.Blazor3D.Viewers.Viewer.RemoveByUuidAsync(System.Guid)">
             <summary>
             Removes object from scene by it's unique identifier.

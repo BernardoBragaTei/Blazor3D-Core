@@ -1793,6 +1793,73 @@ class Viewer3D {
       );
     }
   }
+
+  zoomToFit(padding = 1.2) {
+    const scene = this.scene;
+    const camera = this.camera;
+    const controls = this.controls;
+
+    // Compute the bounding box of the scene
+    const box = new three__WEBPACK_IMPORTED_MODULE_8__.Box3().setFromObject(scene);
+    const size = box.getSize(new three__WEBPACK_IMPORTED_MODULE_8__.Vector3());
+    const center = box.getCenter(new three__WEBPACK_IMPORTED_MODULE_8__.Vector3());
+  
+    if(camera.isPerspectiveCamera) {
+      // Get the camera's current viewing direction
+      const direction = new three__WEBPACK_IMPORTED_MODULE_8__.Vector3();
+      camera.getWorldDirection(direction);
+
+      // Calculate the maximum dimension of the bounding box
+      const maxDim = Math.max(size.x, size.y, size.z);
+
+      // Convert vertical FOV from degrees to radians
+      const fov = camera.fov * (Math.PI / 180);
+
+      // Compute the distance required to fit the bounding box
+      let distance = (maxDim / 2) / Math.tan(fov / 2);
+      distance *= padding; // Apply padding factor
+
+      // Calculate the new camera position
+      const newPosition = center.clone().sub(direction.clone().multiplyScalar(distance));
+      camera.position.copy(newPosition);
+      
+      // Ensure the camera is looking at the center of the bounding box
+      camera.lookAt(center);
+    }
+    else if (camera.isOrthographicCamera) {
+      const aspect = camera.right / camera.top;
+
+      const width = size.x * padding;
+      const height = size.y * padding;
+
+      if (aspect >= 1) {
+        camera.left = -width / 2;
+        camera.right = width / 2;
+        camera.top = (width / aspect) / 2;
+        camera.bottom = -(width / aspect) / 2;
+      } else {
+        camera.left = -(height * aspect) / 2;
+        camera.right = (height * aspect) / 2;
+        camera.top = height / 2;
+        camera.bottom = -height / 2;
+      }
+
+      camera.position.set(center.x, camera.position.y, center.z); // keep Y (top-down)
+      camera.lookAt(center);
+      camera.updateProjectionMatrix();
+    }
+
+    // Update controls if provided
+    if (controls) {
+      controls.target.copy(center);
+      controls.update();
+    }
+
+
+  }
+
+  
+
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Viewer3D);
@@ -77988,7 +78055,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "toggleVisibilityByUuid": () => (/* binding */ toggleVisibilityByUuid),
 /* harmony export */   "updateCamera": () => (/* binding */ updateCamera),
 /* harmony export */   "updateOrbitControls": () => (/* binding */ updateOrbitControls),
-/* harmony export */   "updateScene": () => (/* binding */ updateScene)
+/* harmony export */   "updateScene": () => (/* binding */ updateScene),
+/* harmony export */   "zoomToFit": () => (/* binding */ zoomToFit)
 /* harmony export */ });
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var _Viewer_Viewer3D__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Viewer/Viewer3D */ "./Viewer/Viewer3D.js");
@@ -77997,6 +78065,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 let viewer3d;
+let viewers = [];
 
 const resizeObserver = new ResizeObserver((entries) => {
   viewer3d.onResize();
@@ -78011,47 +78080,72 @@ function loadViewer(json) {
   }
   resizeObserver.observe(container);
   viewer3d = new _Viewer_Viewer3D__WEBPACK_IMPORTED_MODULE_0__["default"](options, container);
+  viewers.push(viewer3d);
 }
 
-function updateScene(json) {
+function getViewerById(viewerId) {
+    if (!viewerId) {
+    console.warn("Provided viewerId is null or undefined.");
+    return null;
+  }
+  const viewer = viewers.find(v => 
+    v.options.viewerSettings.containerId === viewerId);
+  if (!viewer) {
+    console.warn(`Viewer with id ${viewerId} not found.`);
+    return null;
+  }
+  return viewer;
+}
+
+
+function updateScene(json, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const sceneOptions = JSON.parse(json);
-  viewer3d.updateScene(sceneOptions);
+  viewer.updateScene(sceneOptions);
 }
 
-function addToScene(json) {
+function addToScene(json, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const sceneOptions = JSON.parse(json);
-  viewer3d.addToScene(sceneOptions);
+  viewer.addToScene(sceneOptions);
 }
 
-function removeByUuid(guid) {
-  return viewer3d.removeByUuid(guid);
+function removeByUuid(guid, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  return viewer.removeByUuid(guid);
 }
 
-function selectByUuid(guid) {
-  return viewer3d.selectByUuid(guid);
+function selectByUuid(guid, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  return viewer.selectByUuid(guid);
 }
 
-function clearScene() {
-  viewer3d.clearScene();
+function clearScene(viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  viewer.clearScene();
 }
 
-function import3DModel(json) {
+function import3DModel(json, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const settings = JSON.parse(json);
-  return JSON.stringify(viewer3d.import3DModel(settings));
+  return JSON.stringify(viewer.import3DModel(settings));
 }
 
-function importSprite(json) {
+function importSprite(json, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const settings = JSON.parse(json);
-  return JSON.stringify(viewer3d.importSprite(settings));
+  return JSON.stringify(viewer.importSprite(settings));
 }
 
-function setCameraPosition(position, lookAt) {
-  viewer3d.setCameraPosition(position, lookAt);
+function setCameraPosition(position, lookAt, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  viewer.setCameraPosition(position, lookAt);
 }
 
-function updateCamera(json) {
+function updateCamera(json , viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const options = JSON.parse(json);
-  viewer3d.updateCamera(options);
+  viewer.updateCamera(options);
 }
 
 function showCurrentCameraInfo() {
@@ -78063,20 +78157,28 @@ function updateOrbitControls(json){
   viewer3d.updateOrbitControls(options);
 }
 
-function getSceneItemByGuid(guid) {
-  const item = viewer3d.getSceneItemByGuid(guid);
+function getSceneItemByGuid(guid, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  const item = viewer.getSceneItemByGuid(guid);
   return JSON.stringify(item);
 }
 
-function toggleVisibilityByUuid(guid, visible) {
-  return viewer3d.toggleVisibilityByUuid(guid, visible);
+function toggleVisibilityByUuid(guid, visible, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  return viewer.toggleVisibilityByUuid(guid, visible);
 }
 
-function getScreenCoordinates(modelCoordinates){
+function zoomToFit(padding = 1.2, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  return viewer.zoomToFit(padding);
+}
+
+function getScreenCoordinates(modelCoordinates, viewerId = null) {
+  const viewer = getViewerById(viewerId);
   const vector = new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(
     modelCoordinates.x, modelCoordinates.y, modelCoordinates.z);
-  vector.project(viewer3d.camera);
-  const canvas = viewer3d.renderer.domElement;
+  vector.project(viewer.camera);
+  const canvas = viewer.renderer.domElement;
 
       // If outside -1 to 1 range, it's off-screen
     if (vector.x < -1 || vector.x > 1 || vector.y < -1 || vector.y > 1 || vector.z < 0) {
@@ -78109,6 +78211,7 @@ var __webpack_exports__toggleVisibilityByUuid = __webpack_exports__.toggleVisibi
 var __webpack_exports__updateCamera = __webpack_exports__.updateCamera;
 var __webpack_exports__updateOrbitControls = __webpack_exports__.updateOrbitControls;
 var __webpack_exports__updateScene = __webpack_exports__.updateScene;
-export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__getScreenCoordinates as getScreenCoordinates, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__toggleVisibilityByUuid as toggleVisibilityByUuid, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene };
+var __webpack_exports__zoomToFit = __webpack_exports__.zoomToFit;
+export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__getScreenCoordinates as getScreenCoordinates, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__toggleVisibilityByUuid as toggleVisibilityByUuid, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene, __webpack_exports__zoomToFit as zoomToFit };
 
 //# sourceMappingURL=bundle.js.map
