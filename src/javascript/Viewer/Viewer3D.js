@@ -484,45 +484,42 @@ class Viewer3D {
     }
   }
 
-  zoomToFit(padding = 1.2) {
-    const scene = this.scene;
-    const camera = this.camera;
-    const controls = this.controls;
+  fitBoundingBoxToCamera(box, camera, padding = 1.2) {
+    // Get the 8 corners of the bounding box
+    const points = [
+      new THREE.Vector3(box.min.x, box.min.y, box.min.z),
+      new THREE.Vector3(box.min.x, box.min.y, box.max.z),
+      new THREE.Vector3(box.min.x, box.max.y, box.min.z),
+      new THREE.Vector3(box.min.x, box.max.y, box.max.z),
+      new THREE.Vector3(box.max.x, box.min.y, box.min.z),
+      new THREE.Vector3(box.max.x, box.min.y, box.max.z),
+      new THREE.Vector3(box.max.x, box.max.y, box.min.z),
+      new THREE.Vector3(box.max.x, box.max.y, box.max.z),
+    ];
 
-    // Compute the bounding box of the scene
-    const box = new THREE.Box3().setFromObject(scene);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-  
-    if(camera.isPerspectiveCamera) {
-      // Get the camera's current viewing direction
-      const direction = new THREE.Vector3();
-      camera.getWorldDirection(direction);
+    // Transform each corner to camera space
+    const cameraMatrix = new THREE.Matrix4().copy(camera.matrixWorldInverse);
+    const camSpacePoints = points.map(p => p.clone().applyMatrix4(cameraMatrix));
 
-      // Calculate the maximum dimension of the bounding box
-      const maxDim = Math.max(size.x, size.y, size.z);
+    // Find min/max in camera space
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    camSpacePoints.forEach(p => {
+      minX = Math.min(minX, p.x);
+      maxX = Math.max(maxX, p.x);
+      minY = Math.min(minY, p.y);
+      maxY = Math.max(maxY, p.y);
+      minZ = Math.min(minZ, p.z);
+      maxZ = Math.max(maxZ, p.z);
+    });
 
-      // Convert vertical FOV from degrees to radians
-      const fov = camera.fov * (Math.PI / 180);
+    // Calculate required width and height in camera space
+    const width = (maxX - minX) * padding;
+    const height = (maxY - minY) * padding;
+    const aspect = this.container.offsetWidth / this.container.offsetHeight;
 
-      // Compute the distance required to fit the bounding box
-      let distance = (maxDim / 2) / Math.tan(fov / 2);
-      distance *= padding; // Apply padding factor
-
-      // Calculate the new camera position
-      const newPosition = center.clone().sub(direction.clone().multiplyScalar(distance));
-      camera.position.copy(newPosition);
-      
-      // Ensure the camera is looking at the center of the bounding box
-      camera.lookAt(center);
-    }
-    else if (camera.isOrthographicCamera) {
-      const aspect = camera.right / camera.top;
-
-      const width = size.x * padding;
-      const height = size.y * padding;
-
-      if (aspect >= 1) {
+    if (camera.isOrthographicCamera) {
+      // Set the frustum symmetrically around zero
+      if (width / height > aspect) {
         camera.left = -width / 2;
         camera.right = width / 2;
         camera.top = (width / aspect) / 2;
@@ -534,21 +531,70 @@ class Viewer3D {
         camera.bottom = -height / 2;
       }
 
-      camera.position.set(center.x, camera.position.y, center.z); // keep Y (top-down)
+      // Calculate the zoom needed to fit the bounding box in both directions
+      const frustumWidth = camera.right - camera.left;
+      const frustumHeight = camera.top - camera.bottom;
+      const zoomForWidth = frustumWidth !== 0 ? frustumWidth / (maxX - minX) / padding : 1;
+      const zoomForHeight = frustumHeight !== 0 ? frustumHeight / (maxY - minY) / padding : 1;
+      camera.zoom = Math.min(zoomForWidth, zoomForHeight);
+
+      // // Adjust near and far planes to fit all objects
+      // const epsilon = 0.01;
+      // camera.near = Math.max(0.01, minZ - epsilon);
+      // camera.far = maxZ + epsilon;
+
+      // Center the camera on the bounding box center in its own view plane
+      const center = box.getCenter(new THREE.Vector3());
+
+      // Get camera's look direction and up vector
+      const lookDir = new THREE.Vector3();
+      camera.getWorldDirection(lookDir);
+      const up = camera.up.clone();
+
+      // Calculate the right vector
+      const right = new THREE.Vector3().crossVectors(lookDir, up).normalize();
+
+      // Project camera position onto the view plane at the correct distance
+      const distance = camera.position.clone().sub(center).dot(lookDir);
+      camera.position.copy(center).addScaledVector(lookDir, distance);
+
       camera.lookAt(center);
+
+      camera.updateMatrixWorld();
       camera.updateProjectionMatrix();
     }
+    else if (camera.isPerspectiveCamera) {
+      // For perspective, move the camera back so all points fit in the frustum
+      const boundingSphere = box.getBoundingSphere(new THREE.Sphere());
+      const fov = camera.fov * Math.PI / 180;
+      const distance = (boundingSphere.radius * padding) / Math.sin(fov / 2);
 
-    // Update controls if provided
-    if (controls) {
-      controls.target.copy(center);
-      controls.update();
+      // Move camera along its current look direction
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+      camera.position.copy(boundingSphere.center).sub(direction.multiplyScalar(distance));
+      camera.lookAt(boundingSphere.center);
+
+      // Adjust near and far planes
+      const epsilon = 0.01;
+      camera.near = Math.max(0.01, boundingSphere.radius - distance - epsilon);
+      camera.far = boundingSphere.radius + distance + epsilon;
+
+      camera.updateProjectionMatrix();
     }
-
-
   }
 
-  
+  zoomToFit(padding = 1.2) {
+    const box = new THREE.Box3().setFromObject(this.scene);
+    this.fitBoundingBoxToCamera(box, this.camera, padding);
+
+    // Optionally update controls
+    if (this.controls) {
+      const center = box.getCenter(new THREE.Vector3());
+      this.controls.target.copy(center);
+      this.controls.update();
+    }
+  }
 
 }
 

@@ -119,12 +119,12 @@ export function getScreenCoordinates(modelCoordinates, viewerId = null) {
   const canvas = viewer.renderer.domElement;
 
       // If outside -1 to 1 range, it's off-screen
-    if (vector.x < -1 || vector.x > 1 || vector.y < -1 || vector.y > 1 || vector.z < 0) {
+    if (vector.x < -1 || vector.x > 1 || vector.y < -1 || vector.y > 1 || vector.z < -1 || vector.z > 1){
         return null; // Point is not visible
     }
 
-    const widthHalf = canvas.clientWidth / 2;
-    const heightHalf = canvas.clientHeight / 2;
+    const widthHalf = canvas.width / 2;
+    const heightHalf = canvas.height / 2;
 
     return new THREE.Vector2(
         (vector.x * widthHalf) + widthHalf,
