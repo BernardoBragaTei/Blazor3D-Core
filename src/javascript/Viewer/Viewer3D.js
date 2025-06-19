@@ -72,6 +72,15 @@ class Viewer3D {
     this.setOrbitControls();
     this.onResize();
 
+    //Lidar com o redimensionamento do viewer
+    this.resizeObserver = new ResizeObserver((entries) => {
+      this.onResize();
+    });
+
+    this.resizeObserver.observe(container);
+    // // Usage
+    // window.addEventListener('resize', this.onResize());
+
     const animate = () => {
       this.controls.update();
       requestAnimationFrame(animate);
@@ -89,6 +98,25 @@ class Viewer3D {
     this.mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
 
     this.sendHoverObjectData();
+  }
+
+  handleResize(camera, renderer) {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const aspect = width / height;
+
+    if (camera.isPerspectiveCamera) {
+      camera.aspect = aspect;
+    } else if (camera.isOrthographicCamera) {
+      const frustumSize = 10; // Change this if you use a different scale
+      camera.left   = -frustumSize * aspect / 2;
+      camera.right  =  frustumSize * aspect / 2;
+      camera.top    =  frustumSize / 2;
+      camera.bottom = -frustumSize / 2;
+    }
+
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
   }
 
   sendHoverObjectData(){
@@ -143,25 +171,39 @@ class Viewer3D {
   }
 
   onResize() {
-    this.camera.aspect =
-      this.container.offsetWidth / this.container.offsetHeight;
+      if (!this.container || !this.camera || !this.renderer) return;
 
-    if (
-      this.camera.isOrthographicCamera &&
-      this.options &&
-      this.options.camera
-    ) {
-      this.camera.left = this.options.camera.left * this.camera.aspect;
-      this.camera.right = this.options.camera.right * this.camera.aspect;
-    }
+      // Get the new size from the container
+      const width = this.container.clientWidth;
+      const height = this.container.clientHeight;
 
-    this.camera.updateProjectionMatrix();
+      // Update camera aspect ratio and projection matrix
+      if (this.camera.isPerspectiveCamera) {
+          this.camera.aspect = width / height;
+      } else if (this.camera.isOrthographicCamera) {
+          // Maintain the same view size when resizing
+          const aspect = width / height;
+          const currentHeight = this.camera.top - this.camera.bottom;
+          const currentWidth = this.camera.right - this.camera.left;
+          
+          if (width > height) {
+              const newWidth = currentHeight * aspect;
+              this.camera.left = -newWidth / 2;
+              this.camera.right = newWidth / 2;
+          } else {
+              const newHeight = currentWidth / aspect;
+              this.camera.top = newHeight / 2;
+              this.camera.bottom = -newHeight / 2;
+          }
+      }
+      this.camera.updateProjectionMatrix();
 
-    this.renderer.setSize(
-      this.container.offsetWidth,
-      this.container.offsetHeight,
-      false // required
-    );
+      // Update renderer size and pixel ratio
+      this.renderer.setSize(width, height, false);
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+
+      // Force a render to update the view
+      this.render();
   }
 
   setScene() {

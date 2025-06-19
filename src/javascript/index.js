@@ -2,12 +2,7 @@ import { Vector3 } from "three";
 import * as THREE from "three";
 import Viewer3D from "./Viewer/Viewer3D";
 
-let viewer3d;
 let viewers = [];
-
-const resizeObserver = new ResizeObserver((entries) => {
-  viewer3d.onResize();
-});
 
 export function loadViewer(json) {
   const options = JSON.parse(json);
@@ -16,8 +11,7 @@ export function loadViewer(json) {
     console.warn("Container not found!");
     return;
   }
-  resizeObserver.observe(container);
-  viewer3d = new Viewer3D(options, container);
+  const viewer3d = new Viewer3D(options, container);
   viewers.push(viewer3d);
 }
 
