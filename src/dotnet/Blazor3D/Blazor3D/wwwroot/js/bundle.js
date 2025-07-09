@@ -1325,6 +1325,8 @@ class Viewer3D {
   mouse = new three__WEBPACK_IMPORTED_MODULE_8__.Vector2();
   raycaster = new three__WEBPACK_IMPORTED_MODULE_8__.Raycaster();
 
+  selectionEnabled = true;
+
   INTERSECTED = null;
   clock = null;
 
@@ -1365,7 +1367,7 @@ class Viewer3D {
     window.addEventListener('mousemove', this.onMouseMove);
 
     this.renderer.domElement.onclick = (event) => {
-      if (this.options.viewerSettings.canSelect == true) {
+      if (this.options.viewerSettings.canSelect == true && this.selectionEnabled) {
         this.selectObject(event);
       }
       if (
@@ -1657,6 +1659,12 @@ class Viewer3D {
     this.controls.target.set(x, y, z);
     this.controls.update();
     this.controls.addEventListener("change", this.onOrbitChange);
+
+    this.controls.mouseButtons = {
+      LEFT: null,
+      MIDDLE: three__WEBPACK_IMPORTED_MODULE_8__.MOUSE.PAN,
+      RIGHT: null,
+    }
   }
 
   onOrbitChange() {
@@ -78140,6 +78148,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "selectByUuid": () => (/* binding */ selectByUuid),
 /* harmony export */   "setCameraPosition": () => (/* binding */ setCameraPosition),
 /* harmony export */   "showCurrentCameraInfo": () => (/* binding */ showCurrentCameraInfo),
+/* harmony export */   "toggleViewerSelection": () => (/* binding */ toggleViewerSelection),
 /* harmony export */   "toggleVisibilityByUuid": () => (/* binding */ toggleVisibilityByUuid),
 /* harmony export */   "updateCamera": () => (/* binding */ updateCamera),
 /* harmony export */   "updateOrbitControls": () => (/* binding */ updateOrbitControls),
@@ -78255,6 +78264,11 @@ function zoomToFit(padding = 1.2, viewerId = null) {
   return viewer.zoomToFit(padding);
 }
 
+function toggleViewerSelection(enable, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  viewer.selectionEnabled = enable;
+}
+
 function getScreenCoordinates(modelCoordinates, viewerId = null) {
   const viewer = getViewerById(viewerId);
   const vector = new three__WEBPACK_IMPORTED_MODULE_1__.Vector3(
@@ -78289,11 +78303,12 @@ var __webpack_exports__removeByUuid = __webpack_exports__.removeByUuid;
 var __webpack_exports__selectByUuid = __webpack_exports__.selectByUuid;
 var __webpack_exports__setCameraPosition = __webpack_exports__.setCameraPosition;
 var __webpack_exports__showCurrentCameraInfo = __webpack_exports__.showCurrentCameraInfo;
+var __webpack_exports__toggleViewerSelection = __webpack_exports__.toggleViewerSelection;
 var __webpack_exports__toggleVisibilityByUuid = __webpack_exports__.toggleVisibilityByUuid;
 var __webpack_exports__updateCamera = __webpack_exports__.updateCamera;
 var __webpack_exports__updateOrbitControls = __webpack_exports__.updateOrbitControls;
 var __webpack_exports__updateScene = __webpack_exports__.updateScene;
 var __webpack_exports__zoomToFit = __webpack_exports__.zoomToFit;
-export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__getScreenCoordinates as getScreenCoordinates, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__toggleVisibilityByUuid as toggleVisibilityByUuid, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene, __webpack_exports__zoomToFit as zoomToFit };
+export { __webpack_exports__addToScene as addToScene, __webpack_exports__clearScene as clearScene, __webpack_exports__getSceneItemByGuid as getSceneItemByGuid, __webpack_exports__getScreenCoordinates as getScreenCoordinates, __webpack_exports__import3DModel as import3DModel, __webpack_exports__importSprite as importSprite, __webpack_exports__loadViewer as loadViewer, __webpack_exports__removeByUuid as removeByUuid, __webpack_exports__selectByUuid as selectByUuid, __webpack_exports__setCameraPosition as setCameraPosition, __webpack_exports__showCurrentCameraInfo as showCurrentCameraInfo, __webpack_exports__toggleViewerSelection as toggleViewerSelection, __webpack_exports__toggleVisibilityByUuid as toggleVisibilityByUuid, __webpack_exports__updateCamera as updateCamera, __webpack_exports__updateOrbitControls as updateOrbitControls, __webpack_exports__updateScene as updateScene, __webpack_exports__zoomToFit as zoomToFit };
 
 //# sourceMappingURL=bundle.js.map

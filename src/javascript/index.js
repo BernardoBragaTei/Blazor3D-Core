@@ -105,6 +105,11 @@ export function zoomToFit(padding = 1.2, viewerId = null) {
   return viewer.zoomToFit(padding);
 }
 
+export function toggleViewerSelection(enable, viewerId = null) {
+  const viewer = getViewerById(viewerId);
+  viewer.selectionEnabled = enable;
+}
+
 export function getScreenCoordinates(modelCoordinates, viewerId = null) {
   const viewer = getViewerById(viewerId);
   const vector = new THREE.Vector3(

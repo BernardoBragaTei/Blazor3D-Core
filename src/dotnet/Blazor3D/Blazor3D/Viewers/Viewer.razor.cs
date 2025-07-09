@@ -392,6 +392,11 @@ namespace HomagGroup.Blazor3D.Viewers
             }
         }
 
+        public async Task ToggleViewerSelection(bool enable)
+        {
+            await bundleModule.InvokeVoidAsync("toggleViewerSelection", enable, this.ViewerSettings.ContainerId);
+        }
+
         private void OnObjectHoveredStatic(RayIntersectArgs e)
         {
             if (ViewerSettings.ContainerId == e.ContainerId)

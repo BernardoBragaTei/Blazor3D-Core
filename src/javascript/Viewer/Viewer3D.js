@@ -15,6 +15,8 @@ class Viewer3D {
   mouse = new THREE.Vector2();
   raycaster = new THREE.Raycaster();
 
+  selectionEnabled = true;
+
   INTERSECTED = null;
   clock = null;
 
@@ -55,7 +57,7 @@ class Viewer3D {
     window.addEventListener('mousemove', this.onMouseMove);
 
     this.renderer.domElement.onclick = (event) => {
-      if (this.options.viewerSettings.canSelect == true) {
+      if (this.options.viewerSettings.canSelect == true && this.selectionEnabled) {
         this.selectObject(event);
       }
       if (
@@ -347,6 +349,12 @@ class Viewer3D {
     this.controls.target.set(x, y, z);
     this.controls.update();
     this.controls.addEventListener("change", this.onOrbitChange);
+
+    this.controls.mouseButtons = {
+      LEFT: null,
+      MIDDLE: THREE.MOUSE.PAN,
+      RIGHT: null,
+    }
   }
 
   onOrbitChange() {
